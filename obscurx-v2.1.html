@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ObscurX • UI</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet" />
+  
+  <!-- Ghost Mode Erken Yönlendirme: Eğer URL'de ghost=1 varsa, hemen Startpage'e yönlendir -->
+  <script>
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("ghost") === "1" && params.has("q")) {
+        const query = params.get("q");
+        const engine = params.get("engine") || "startpage";
+        const encryptedQuery = btoa(query);
+        const newUrl = window.location.pathname + "?ghost=1&q=" + encodeURIComponent(encryptedQuery) + "&engine=" + engine;
+        window.history.replaceState(null, "", newUrl);
+        const searchEngines = {
+          brave: "https://search.brave.com/search?q=",
+          google: "https://www.google.com/search?q=",
+          yandex: "https://yandex.com/search/?text=",
+          duckduckgo: "https://duckduckgo.com/?q=",
+          vuhuv: "https://vuhuv.com/?k=1&p=1&d=1&q=",
+          startpage: "https://www.startpage.com/do/dsearch?query="
+        };
+        const destinationUrl = searchEngines[engine] + encodeURIComponent(query);
+        window.location.replace(destinationUrl);
+      }
+    })();
+  </script>
+  
+  <style>
+    /* Tema renk değişkenleri ve temel değerler */
+    /* Dark Theme */
+    .dark-mode {
+      --background: #121212;
+      --text-color: #f4f4f4;
+      --input-bg: #1e1e1e;
+      --input-text: #e0e0e0;
+      --accent: #ff9800;
+      --border-accent: rgba(255, 152, 0, 0.15);
+      --border-accent-focus: rgba(255, 152, 0, 0.4);
+    }
+    /* Light Theme */
+    .light-mode {
+      --background: #f4f4f4;
+      --text-color: #121212;
+      --input-bg: #ffffff;
+      --input-text: #333;
+      --accent: #ff9800;
+      --border-accent: rgba(255, 152, 0, 0.15);
+      --border-accent-focus: rgba(255, 152, 0, 0.4);
+    }
+    /* Nord Theme */
+    .nord-mode {
+      --background: #2E3440;
+      --text-color: #D8DEE9;
+      --input-bg: #3B4252;
+      --input-text: #ECEFF4;
+      --accent: #81A1C1;
+      --border-accent: rgba(129, 161, 193, 0.15);
+      --border-accent-focus: rgba(129, 161, 193, 0.4);
+    }
+    /* Yeni Blood Glass Teması */
+    .bloodglass-mode {
+      --background: #141414;
+      --text-color: #e8e8e8;
+      --input-bg: rgba(230,57,70, 0.25);
+      --input-text: #e8e8e8;
+      --accent: #e63946;
+      --border-accent: rgba(230,57,70, 0.35);
+      --border-accent-focus: rgba(230,57,70, 0.7);
+    }
+    body.bloodglass-mode {
+      background: var(--background);
+      position: relative;
+    }
+    body.bloodglass-mode::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(230,57,70,0.15), rgba(230,57,70,0.05));
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: -1;
+    }
+    
+    /* Genel Stil */
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: var(--background);
+      color: var(--text-color);
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .live-clock {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 24px;
+      font-weight: 600;
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4, #a18cd1);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: gradientFlow 12s ease infinite;
+      z-index: 3;
+      letter-spacing: 1px;
+    }
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .title {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 30px;
+      transition: all 0.3s ease;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: var(--input-bg);
+      border-radius: 30px;
+      padding: 12px 16px;
+      width: 320px;
+      transition: width 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  border-color 0.12s ease,
+                  box-shadow 0.15s ease;
+      border: 2px solid var(--border-accent);
+    }
+    .container:focus-within {
+      width: 500px;
+      border-color: var(--border-accent-focus);
+      transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .icon {
+      font-size: 24px;
+      color: var(--accent);
+      margin-right: 12px;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .container:focus-within .icon {
+      transform: rotate(180deg);
+    }
+    .input-field {
+      flex-grow: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--input-text);
+      font-size: 16px;
+      padding: 8px;
+      transition: color 0.3s ease;
+    }
+    .input-field::placeholder {
+      color: #bbb;
+      transition: color 0.3s ease;
+    }
+    .autocomplete-items {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--input-bg);
+      border-radius: 5px;
+      max-height: 150px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+    .autocomplete-items div {
+      padding: 10px;
+      cursor: pointer;
+    }
+    .autocomplete-items div:hover {
+      background: var(--accent);
+      color: var(--background);
+    }
+    .theme-toggle, .history-icon, .settings-icon {
+      position: absolute;
+      top: 20px;
+      cursor: pointer;
+      font-size: 28px;
+      color: var(--accent);
+      transition: all 0.3s ease;
+      z-index: 2;
+    }
+    .theme-toggle { right: 20px; }
+    .history-icon { left: 20px; }
+    .settings-icon { right: 60px; }
+    /* Güncellenmiş ghost mod toggle butonu */
+    .ghost-toggle {
+      position: absolute;
+      top: 22px;
+      left: 60px;
+      cursor: pointer;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 35px;
+      height: 24px;
+      border-radius: 12px;
+      background-color: rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      color: var(--accent);
+      font-size: 20px;
+    }
+    .ghost-toggle.active {
+      background-color: var(--accent);
+      color: var(--background);
+    }
+    /* Geçmiş (History) Stilleri (ilk koddaki gibi) */
+    .search-history {
+      position: absolute;
+      left: 20px;
+      top: 60px;
+      background: var(--input-bg);
+      border-radius: 12px;
+      padding: 12px;
+      width: 250px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1;
+    }
+    .search-history.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .clear-history {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-family: 'Inter';
+      font-size: 12px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    .clear-history:hover { background: rgba(255, 152, 0, 0.1); }
+    .search-history ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .search-history li {
+      padding: 10px 12px;
+      margin: 4px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .search-history li:hover {
+      background: var(--accent);
+      color: var(--background);
+    }
+    /* Özel Scrollbar (Chrome & Edge) */
+    .search-history::-webkit-scrollbar {
+      width: 8px;
+    }
+    .search-history::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .search-history::-webkit-scrollbar-thumb {
+      background-color: var(--accent);
+      border-radius: 4px;
+    }
+    /* Sağ Click Menüsü */
+    .context-menu {
+      position: fixed;
+      background: var(--input-bg);
+      border-radius: 50%;
+      width: 320px;
+      height: 320px;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      z-index: 1000;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+    .context-menu.active {
+      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .menu-items {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    /* Sağ Click Menüsü Kısayol Butonları */
+    .shortcut-item {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      background: var(--background);
+      border-radius: 50%;
+      cursor: default;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid var(--border-accent);
+      overflow: hidden;
+    }
+    .shortcut-item:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 16px var(--border-accent-focus);
+    }
+    /* İkon filtresi için inner element */
+    .shortcut-icon {
+      width: 80%;
+      height: 80%;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .delete-menu {
+      position: fixed;
+      background: var(--input-bg);
+      border-radius: 8px;
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 1001;
+      animation: menuFade 0.2s ease-out;
+    }
+    @keyframes menuFade {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .delete-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      min-width: 80px;
+    }
+    .delete-btn:hover {
+      background: #ff4444;
+      color: white;
+    }
+    .add-site-btn {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--background);
+      font-size: 32px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      line-height: 60px;
+    }
+    .add-site-btn:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+    .settings-menu {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--input-bg);
+      border-radius: 12px;
+      padding: 20px;
+      width: 300px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+    }
+    .settings-menu.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .close-settings {
+      cursor: pointer;
+      font-size: 24px;
+      color: var(--accent);
+    }
+    .settings-content {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .setting-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .setting-item label {
+      font-size: 14px;
+      color: var(--text-color);
+    }
+    .setting-item select {
+      background: var(--background);
+      border: 1px solid var(--accent);
+      color: var(--text-color);
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+    }
+    @media (max-width: 600px) {
+      .container:focus-within { width: 90%; transition-duration: 0.15s; }
+      .title { font-size: 36px; }
+      .search-history {
+        width: 80vw;
+        left: 50%;
+        transform: translateX(-50%) translateY(-10px);
+      }
+      .search-history.active { transform: translateX(-50%) translateY(0); }
+      .live-clock { font-size: 20px; top: 25px; }
+      .context-menu { width: 300px; height: 300px; }
+      .shortcut-item { width: 70px; height: 70px; }
+    }
+    /* Tema-özel efektler */
+    .dark-mode .container:focus-within,
+    .light-mode .container:focus-within,
+    .nord-mode .container:focus-within,
+    .bloodglass-mode .container:focus-within {
+      animation: none;
+    }
+    /* Güncellenmiş Fafnir Search Stili (Yeni sekmede açacak) */
+    .container.fafnir-style {
+      display: flex;
+      align-items: center;
+      background: var(--input-bg);
+      border-radius: 30px;
+      padding: 12px 16px;
+      width: 320px;
+      border: 2px solid var(--accent);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .container.fafnir-style:hover,
+    .container.fafnir-style:focus-within {
+      box-shadow: 0 0 15px var(--accent);
+      width: 400px;
+    }
+    .container.fafnir-style .autocomplete-items {
+      top: 55px;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="live-clock" id="liveClock"></div>
+  <div class="history-icon material-icons" id="historyButton">history</div>
+  <div class="ghost-toggle material-icons" id="ghostToggle" title="Hayalet Modu Kapalı">toggle_off</div>
+  <div class="theme-toggle material-icons" id="themeToggle">brightness_4</div>
+  <div class="settings-icon material-icons" id="settingsButton">settings</div>
+  <div class="title" id="title">ObscurX</div>
+  <div class="container" id="searchContainer">
+    <span class="icon material-icons">search</span>
+    <input type="text" class="input-field" id="searchInput" placeholder="Search" autocomplete="off" />
+    <div class="autocomplete-items" id="autocompleteContainer"></div>
+  </div>
+  <div class="search-history" id="historyDropdown">
+    <div class="history-header">
+      <h4 data-i18n="historyTitle">History</h4>
+      <button class="clear-history" id="clearHistory" data-i18n="clearHistory">Clear</button>
+    </div>
+    <ul id="historyList"></ul>
+  </div>
+  <div class="context-menu" id="contextMenu">
+    <div class="menu-items" id="menuItems"></div>
+    <div class="add-site-btn" id="addSiteBtn">+</div>
+  </div>
+  <div class="settings-menu" id="settingsMenu">
+    <div class="settings-header">
+      <h4>Settings</h4>
+      <span class="material-icons close-settings" id="closeSettings">close</span>
+    </div>
+    <div class="settings-content">
+      <div class="setting-item">
+        <label for="themeToggleSelect" data-i18n="themeLabel">Theme</label>
+        <select id="themeToggleSelect">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+          <option value="nord">Nord</option>
+          <option value="bloodglass">Blood Glass</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label for="languageSelect" data-i18n="languageLabel">Language</label>
+        <select id="languageSelect">
+          <option value="tr">Türkçe</option>
+          <option value="en">English</option>
+          <option value="ru">Русский</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label for="searchEngineSelect" data-i18n="searchEngineLabel">Search Engine</label>
+        <select id="searchEngineSelect">
+          <option value="brave">Brave</option>
+          <option value="google">Google</option>
+          <option value="yandex">Yandex</option>
+          <option value="duckduckgo">DuckDuckGo</option>
+          <option value="vuhuv">Vuhuv</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label for="searchBarStyleSelect" data-i18n="searchBarStyleLabel">Search Bar Style</label>
+        <select id="searchBarStyleSelect">
+          <option value="obscurx">ObscurX</option>
+          <option value="fafnir">Fafnir</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <script>
+    // JSONP ile Google Öneri Servisi (Fafnir)
+    function fetchSuggestions(query) {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+        const script = document.createElement('script');
+        window[callbackName] = function(data) {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          resolve(data[1] || []);
+        };
+        script.onerror = function() {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          reject([]);
+        };
+        script.src = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}&callback=${callbackName}`;
+        document.body.appendChild(script);
+      });
+    }
+    
+    function closeAutocomplete() {
+      autocompleteContainer.innerHTML = "";
+      autocompleteContainer.style.display = "none";
+    }
+    function autocomplete(value) {
+      closeAutocomplete();
+      if (!value) return;
+      fetchSuggestions(value).then(suggestions => {
+        suggestions.forEach(suggestion => {
+          const suggestionElement = document.createElement("div");
+          suggestionElement.textContent = suggestion;
+          suggestionElement.addEventListener("click", () => {
+            searchInput.value = suggestion;
+            closeAutocomplete();
+          });
+          autocompleteContainer.appendChild(suggestionElement);
+        });
+        autocompleteContainer.style.display = "block";
+      }).catch(() => {});
+    }
+    function handleAutocomplete(e) {
+      if (currentSearchBarStyle === "fafnir") {
+        autocomplete(e.target.value);
+      }
+    }
+
+    // Kapanması için input blur event'i ekleyelim
+    document.getElementById("searchInput").addEventListener("blur", function() {
+      setTimeout(closeAutocomplete, 150);
+    });
+
+    // Element referansları
+    const searchContainer = document.getElementById("searchContainer");
+    const searchInput = document.getElementById("searchInput");
+    const autocompleteContainer = document.getElementById("autocompleteContainer");
+    const historyList = document.getElementById("historyList");
+    const themeToggle = document.getElementById("themeToggle");
+    const themeToggleSelect = document.getElementById("themeToggleSelect");
+    const historyButton = document.getElementById("historyButton");
+    const ghostToggle = document.getElementById("ghostToggle");
+    const historyDropdown = document.getElementById("historyDropdown");
+    const clearHistoryBtn = document.getElementById("clearHistory");
+    const liveClock = document.getElementById("liveClock");
+    const contextMenu = document.getElementById("contextMenu");
+    const menuItems = document.getElementById("menuItems");
+    const addSiteBtn = document.getElementById("addSiteBtn");
+    const settingsButton = document.getElementById("settingsButton");
+    const settingsMenu = document.getElementById("settingsMenu");
+    const closeSettings = document.getElementById("closeSettings");
+    const searchEngineSelect = document.getElementById("searchEngineSelect");
+    const languageSelect = document.getElementById("languageSelect");
+    const searchBarStyleSelect = document.getElementById("searchBarStyleSelect");
+
+    // Çeviri sistemi
+    const translations = {
+      en: {
+        searchPlaceholder: "Search",
+        historyTitle: "History",
+        clearHistory: "Clear",
+        themeLabel: "Theme",
+        languageLabel: "Language",
+        searchEngineLabel: "Search Engine",
+        searchBarStyleLabel: "Search Bar Style",
+        addWebsite: "Add a website -> (google.com)"
+      },
+      tr: {
+        searchPlaceholder: "Ara",
+        historyTitle: "Geçmiş",
+        clearHistory: "Temizle",
+        themeLabel: "Tema",
+        languageLabel: "Dil",
+        searchEngineLabel: "Arama Motoru",
+        searchBarStyleLabel: "Arama Çubuğu Stili",
+        addWebsite: "Website ekle -> (google.com)"
+      },
+      ru: {
+        searchPlaceholder: "Поиск",
+        historyTitle: "История",
+        clearHistory: "Очистить",
+        themeLabel: "Тема",
+        languageLabel: "Язык",
+        searchEngineLabel: "Поисковик",
+        searchBarStyleLabel: "Стиль Поисковой Строки",
+        addWebsite: "Добавить сайт -> (google.com)"
+      }
+    };
+
+    // Arama motoru URL şablonları
+    const searchEngines = {
+      brave: "https://search.brave.com/search?q=",
+      google: "https://www.google.com/search?q=",
+      yandex: "https://yandex.com/search/?text=",
+      duckduckgo: "https://duckduckgo.com/?q=",
+      vuhuv: "https://vuhuv.com/?k=1&p=1&d=1&q="
+    };
+
+    // Ayar değişkenleri
+    let currentLanguage = localStorage.getItem("language") || "tr";
+    let searchHistory = JSON.parse(localStorage.getItem("searches")) || [];
+    let shortcuts = JSON.parse(localStorage.getItem("shortcuts")) || [];
+    let activeDeleteMenu = null;
+    let currentSearchBarStyle = localStorage.getItem("searchBarStyle") || "obscurx";
+    let currentTheme = localStorage.getItem("theme") || "bloodglass";
+    let ghostMode = false;
+
+    // Dil çeviri sistemi
+    function updateTranslations() {
+      document.querySelectorAll("[data-i18n]").forEach(element => {
+        const key = element.getAttribute("data-i18n");
+        element.textContent = translations[currentLanguage][key];
+      });
+      searchInput.placeholder = translations[currentLanguage].searchPlaceholder;
+    }
+
+    // Tema uygulaması
+    function applyTheme(theme) {
+      const themes = ["dark-mode", "light-mode", "nord-mode", "bloodglass-mode"];
+      document.body.classList.remove(...themes);
+      switch (theme) {
+        case "dark":
+          document.body.classList.add("dark-mode");
+          themeToggle.textContent = "brightness_4";
+          break;
+        case "light":
+          document.body.classList.add("light-mode");
+          themeToggle.textContent = "brightness_2";
+          break;
+        case "nord":
+          document.body.classList.add("nord-mode");
+          themeToggle.textContent = "brightness_4";
+          break;
+        case "bloodglass":
+          document.body.classList.add("bloodglass-mode");
+          themeToggle.textContent = "brightness_4";
+          break;
+        default:
+          document.body.classList.add("bloodglass-mode");
+          themeToggle.textContent = "brightness_4";
+          break;
+      }
+      currentTheme = theme;
+      localStorage.setItem("theme", theme);
+    }
+
+    // Yükleme fonksiyonları
+    function loadTheme() {
+      themeToggleSelect.value = currentTheme;
+      applyTheme(currentTheme);
+    }
+    function loadLanguage() {
+      languageSelect.value = currentLanguage;
+      updateTranslations();
+    }
+    function loadSearchEngine() {
+      const savedEngine = localStorage.getItem("searchEngine") || "brave";
+      searchEngineSelect.value = savedEngine;
+    }
+    function loadSearchBarStyle() {
+      searchBarStyleSelect.value = currentSearchBarStyle;
+      updateSearchBarBehavior();
+    }
+
+    // Canlı saat
+    function updateClock() {
+      const now = new Date();
+      liveClock.textContent = now.toLocaleTimeString(currentLanguage + "-TR", { hour: "2-digit", minute: "2-digit" });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Arama geçmişi işlevleri
+    function toggleHistory() {
+      historyDropdown.classList.toggle("active");
+    }
+    function clearHistory() {
+      searchHistory = [];
+      localStorage.removeItem("searches");
+      updateHistoryUI();
+    }
+    function updateHistoryUI() {
+      historyList.innerHTML = "";
+      searchHistory.forEach(query => {
+        const li = document.createElement("li");
+        li.textContent = query;
+        li.onclick = () => {
+          searchInput.value = query;
+          searchInput.focus();
+          historyDropdown.classList.remove("active");
+        };
+        historyList.appendChild(li);
+      });
+      clearHistoryBtn.style.display = searchHistory.length ? "block" : "none";
+    }
+    function addToHistory(query) {
+      if (query && searchHistory[0] !== query) {
+        searchHistory.unshift(query);
+        searchHistory = searchHistory.slice(0, 8);
+        localStorage.setItem("searches", JSON.stringify(searchHistory));
+        updateHistoryUI();
+      }
+    }
+
+    // Search Bar stil seçimi
+    function updateSearchBarBehavior() {
+      currentSearchBarStyle = searchBarStyleSelect.value;
+      localStorage.setItem("searchBarStyle", currentSearchBarStyle);
+      if (currentSearchBarStyle === "fafnir") {
+        searchContainer.classList.add("fafnir-style");
+        searchInput.addEventListener("input", handleAutocomplete);
+      } else {
+        searchContainer.classList.remove("fafnir-style");
+        closeAutocomplete();
+        searchInput.removeEventListener("input", handleAutocomplete);
+      }
+    }
+
+    // Tema toggle
+    themeToggle.addEventListener("click", () => {
+      currentTheme = currentTheme === "dark" ? "light" : "dark";
+      themeToggleSelect.value = currentTheme;
+      applyTheme(currentTheme);
+    });
+    themeToggleSelect.addEventListener("change", (e) => {
+      applyTheme(e.target.value);
+    });
+
+    // Profesyonel ghost mod toggle butonu
+    ghostToggle.addEventListener("click", () => {
+      ghostMode = !ghostMode;
+      if (ghostMode) {
+        ghostToggle.classList.add("active");
+        ghostToggle.textContent = "toggle_on";
+        ghostToggle.title = "Hayalet Modu (Anonim Arama)";
+      } else {
+        ghostToggle.classList.remove("active");
+        ghostToggle.textContent = "toggle_off";
+        ghostToggle.title = "Hayalet Modu Kapalı";
+      }
+    });
+
+    // Ayarlar menüsü
+    settingsButton.addEventListener("click", () => {
+      settingsMenu.classList.toggle("active");
+    });
+    closeSettings.addEventListener("click", () => {
+      settingsMenu.classList.remove("active");
+    });
+
+    // Dil değiştirme
+    languageSelect.addEventListener("change", (e) => {
+      currentLanguage = e.target.value;
+      localStorage.setItem("language", currentLanguage);
+      updateTranslations();
+      updateClock();
+    });
+
+    // Arama motoru değiştirme
+    searchEngineSelect.addEventListener("change", (e) => {
+      localStorage.setItem("searchEngine", e.target.value);
+    });
+
+    // Arama çubuğu stil seçimi
+    searchBarStyleSelect.addEventListener("change", updateSearchBarBehavior);
+
+    // Arama işlevi
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const query = searchInput.value.trim();
+        if (query) {
+          if (!ghostMode) {
+            addToHistory(query);
+            const engine = localStorage.getItem("searchEngine") || "brave";
+            // Fafnir stilindeyken de yeni sekmede açacak şekilde window.open() kullanıyoruz.
+            window.open(searchEngines[engine] + encodeURIComponent(query), "_blank");
+          } else {
+            // Ghost modda: her zaman Startpage kullanılıyor, hemen ghost URL'sine yönlendiriyoruz.
+            const engine = "startpage";
+            const redirectUrl = window.location.origin + window.location.pathname + "?ghost=1&q=" + encodeURIComponent(query) + "&engine=" + engine;
+            window.open(redirectUrl, "_blank");
+          }
+          searchInput.value = "";
+          closeAutocomplete();
+        }
+      }
+    });
+
+    // Kısayol (shortcut) işlevleri
+    function positionItems() {
+      const items = document.querySelectorAll(".shortcut-item");
+      const radius = 160; // Sağ click menüsünün dairesinin tam çizgisi (320px/2)
+      const center = 160; // Context-menu merkezi
+      items.forEach((item, index) => {
+        const angle = (index * (360 / items.length)) - 90;
+        const x = center + radius * Math.cos(angle * Math.PI / 180);
+        const y = center + radius * Math.sin(angle * Math.PI / 180);
+        item.style.left = (x - 35) + "px"; // Buton merkezi için (70px/2 = 35px)
+        item.style.top = (y - 35) + "px";
+      });
+    }
+    function createDeleteMenu(e, shortcutWrapper, index) {
+      const menu = document.createElement("div");
+      menu.className = "delete-menu";
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "delete-btn";
+      deleteBtn.innerHTML = '<span class="material-icons">delete</span> Delete';
+      deleteBtn.onclick = () => {
+        shortcuts = shortcuts.filter((_, i) => i !== index);
+        localStorage.setItem("shortcuts", JSON.stringify(shortcuts));
+        updateShortcutsUI();
+        menu.remove();
+        activeDeleteMenu = null;
+      };
+      menu.appendChild(deleteBtn);
+      menu.style.top = e.clientY + "px";
+      menu.style.left = e.clientX + "px";
+      document.body.appendChild(menu);
+      return menu;
+    }
+    function createShortcutElement(site, index) {
+      const shortcutWrapper = document.createElement("div");
+      shortcutWrapper.style.position = "relative";
+      const shortcut = document.createElement("div");
+      shortcut.className = "shortcut-item";
+      // İç element (ikon filtresi)
+      const iconDiv = document.createElement("div");
+      iconDiv.className = "shortcut-icon";
+      // Yüksek çözünürlüklü favicon için "&sz=64" parametresini ekliyoruz.
+      iconDiv.style.backgroundImage = "url(" + site.favicon + "&sz=64)";
+      shortcut.appendChild(iconDiv);
+      shortcut.oncontextmenu = (e) => {
+        e.preventDefault();
+        if (activeDeleteMenu) activeDeleteMenu.remove();
+        activeDeleteMenu = createDeleteMenu(e, shortcutWrapper, index);
+        activeDeleteMenu.style.display = "flex";
+        return false;
+      };
+      shortcut.onclick = () => {
+        window.open(site.url, "_blank");
+      };
+      shortcutWrapper.appendChild(shortcut);
+      return shortcutWrapper;
+    }
+    function updateShortcutsUI() {
+      menuItems.innerHTML = "";
+      shortcuts.forEach((site, index) => {
+        menuItems.appendChild(createShortcutElement(site, index));
+      });
+      positionItems();
+      addSiteBtn.style.display = shortcuts.length < 8 ? "block" : "none";
+    }
+    addSiteBtn.addEventListener("click", () => {
+      const domain = prompt(translations[currentLanguage].addWebsite);
+      if (domain) {
+        const url = "https://" + domain;
+        // Yüksek çözünürlüklü favicon için "&sz=64" parametresi ekleniyor.
+        const favicon = "https://www.google.com/s2/favicons?domain=" + domain + "&sz=64";
+        shortcuts.push({ url, favicon });
+        localStorage.setItem("shortcuts", JSON.stringify(shortcuts));
+        updateShortcutsUI();
+      }
+    });
+
+    // Genel event listenerlar
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".delete-menu") && activeDeleteMenu) {
+        activeDeleteMenu.remove();
+        activeDeleteMenu = null;
+      }
+      // Geçmiş dropdown dışına tıklanırsa (history icon hariç) kapatılsın.
+      if (!e.target.closest("#historyDropdown") && !e.target.closest("#historyButton")) {
+        historyDropdown.classList.remove("active");
+      }
+    });
+    document.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      if (!contextMenu.classList.contains("active")) {
+        contextMenu.style.display = "flex";
+        requestAnimationFrame(() => {
+          contextMenu.style.left = e.clientX + "px";
+          contextMenu.style.top = e.clientY + "px";
+          contextMenu.classList.add("active");
+        });
+      }
+    });
+    document.addEventListener("click", (e) => {
+      if (!contextMenu.contains(e.target)) {
+        contextMenu.style.display = "none";
+        contextMenu.classList.remove("active");
+      }
+    });
+    historyButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleHistory();
+    });
+    clearHistoryBtn.addEventListener("click", clearHistory);
+
+    // İlk yükleme
+    loadSearchEngine();
+    loadLanguage();
+    loadTheme();
+    loadSearchBarStyle();
+    updateHistoryUI();
+    updateShortcutsUI();
+    searchInput.focus();
+  </script>
+</body>
+</html>
