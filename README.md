@@ -6,8 +6,8 @@ A browser UI that is including 5 - 6 different search engines
 It has different features.
 
 > Right-click menu
-> Responsive UI
-> Good looking design
+>> Responsive UI
+>>> Good looking design
 
 ## New patch updates!
 
